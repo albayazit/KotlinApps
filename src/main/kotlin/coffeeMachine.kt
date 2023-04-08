@@ -3,11 +3,11 @@ fun main() {
     val espresso = Coffee()
     val latte = Coffee()
     val cappuccino = Coffee()
+    coffeeState(espresso, latte, cappuccino)
 
-    coffeeSate(espresso, latte, cappuccino)
-    currentState(action)
-    selectAction(action, espresso, latte, cappuccino)
-    currentState(action)
+    while(true) {
+        if(selectAction(action, espresso, latte, cappuccino) == 0) break
+    }
 }
 
 class Coffee() {
@@ -34,7 +34,7 @@ fun currentState(action: Action) {
     println("$${action.money} of money\n")
 }
 
-fun coffeeSate(espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
+fun coffeeState(espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
     espresso.waterNeed = 250
     espresso.beansNeed = 16
     espresso.cost = 4
@@ -51,34 +51,52 @@ fun coffeeSate(espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
 }
 
 
-fun selectAction(action: Action, espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
-    println("Write action (buy, fill, take):")
+fun selectAction(action: Action, espresso: Coffee, latte: Coffee, cappuccino: Coffee): Int {
+    println("Write action (buy, fill, take, remaining, exit):")
     val select = readln()
     when (select) {
         "buy" -> buy(action, espresso, latte, cappuccino)
         "fill" -> fill(action)
         "take" -> take(action)
+        "remaining" -> currentState(action)
+        "exit" -> return 0
     }
-
+    return 1
 }
 
-fun buy(action: Action, espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
+fun buy(action: Action, espresso: Coffee, latte: Coffee, cappuccino: Coffee): Int {
     println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:")
-    val coffee = readln().toInt()
+    val coffee = readln()
+    if(coffee == "back") return 0
     when (coffee) {
-        1 -> {
-            if(checkReserves(action, espresso)) buyCoffee(action, espresso)
+        "1" -> {
+            if(checkReserves(action, espresso)) {
+                println("I have enough resources, making you a coffee!\n")
+                buyCoffee(action, espresso)
+            }
         }
-        2 -> {
-            if(checkReserves(action, latte)) buyCoffee(action, latte)
+        "2" -> {
+            if(checkReserves(action, latte)) {
+                println("I have enough resources, making you a coffee!\n")
+                buyCoffee(action, latte)
+            }
         }
-        3 -> {
-            if(checkReserves(action, cappuccino)) buyCoffee(action, cappuccino)
+        "3" -> {
+            if(checkReserves(action, cappuccino)) {
+                println("I have enough resources, making you a coffee!\n")
+                buyCoffee(action, cappuccino)
+            }
         }
     }
+    return 1
 }
 
 fun checkReserves(action: Action, coffee: Coffee): Boolean {
+    if(action.water < coffee.waterNeed) println("Sorry, not enough water!")
+    if(action.milk < coffee.milkNeed) println("Sorry, not enough milk!")
+    if(action.beans < coffee.beansNeed) println("Sorry, not enough beans!")
+    if(action.cups < 1) println("Sorry, not enough cups!")
+
     return action.water >= coffee.waterNeed &&
             action.milk >= coffee.milkNeed &&
             action.beans >= coffee.beansNeed &&
