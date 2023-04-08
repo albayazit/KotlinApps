@@ -50,7 +50,6 @@ fun coffeeState(espresso: Coffee, latte: Coffee, cappuccino: Coffee) {
     cappuccino.cost = 6
 }
 
-
 fun selectAction(action: Action, espresso: Coffee, latte: Coffee, cappuccino: Coffee): Int {
     println("Write action (buy, fill, take, remaining, exit):")
     val select = readln()
