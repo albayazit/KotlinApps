@@ -1,16 +1,24 @@
 import kotlin.random.Random
 
 fun main() {
-    dataRead()
+    val field = gameField()
+    val mineCount = dataRead()
+    fieldMine(field, mineCount)
+    fieldMines(field)
+    val fieldClone = hideMine(field)
+    while (true) {
+        if (gameOver(field, fieldClone) == 1) return println("Congratulations! You found all the mines!")
+        gameOut(field)
+        setMine(field)
+    }
 }
-fun dataRead() {
+fun dataRead(): Int {
     print("How many mines do you want on the field? > ")
-    val mineCount = readln().toInt()
-    fieldMine(gameField(), mineCount)
+    return readln().toInt()
 }
 
 fun gameField(): MutableList<MutableList<String>> {
-    var gameField = mutableListOf(
+    return mutableListOf(
         mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
         mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
         mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
@@ -21,7 +29,6 @@ fun gameField(): MutableList<MutableList<String>> {
         mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
         mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", ".")
     )
-    return gameField
 }
 
 fun fieldMine(gameField: MutableList<MutableList<String>>, mineCount: Int) {
@@ -34,7 +41,6 @@ fun fieldMine(gameField: MutableList<MutableList<String>>, mineCount: Int) {
         }
         gameField[randCount][randCountTwo] = "X"
     }
-    fieldMines(gameField)
 }
 
 fun fieldMines(gameField: MutableList<MutableList<String>>) {
@@ -45,7 +51,6 @@ fun fieldMines(gameField: MutableList<MutableList<String>>) {
             }
         }
     }
-    gameOut(gameField)
 }
 
 fun mineCheck(gameField: MutableList<MutableList<String>>, i: Int, j: Int) {
@@ -64,11 +69,55 @@ fun mineCheck(gameField: MutableList<MutableList<String>>, i: Int, j: Int) {
     else gameField[i][j] = "."
 }
 
+fun hideMine(gameField: MutableList<MutableList<String>>): MutableList<MutableList<String>> {
+    val mines = gameField()
+    for (i in 0..8) {
+        for(j in 0..8) {
+            mines[i][j] = gameField[i][j]
+        }
+    }
+    for (i in 0..8) {
+        for(j in 0..8){
+            if(gameField[i][j] == "X") {
+                gameField[i][j] = "."
+                mines[i][j] = "*"
+            }
+        }
+    }
+    return mines
+}
 
-fun gameOut(gameField: MutableList<MutableList<String>> ) {
+
+fun gameOut(gameField: MutableList<MutableList<String>>) {
     println(" │123456789│\n—│—————————│")
     for(i in gameField.indices) {
         println("${i + 1}|" + gameField[i].joinToString("") + "|")
     }
     println("—│—————————│")
+}
+
+fun gameOver(gameField: MutableList<MutableList<String>>, mines: MutableList<MutableList<String>>): Int {
+    for(i in 0..8) {
+        for(j in 0..8) {
+            if(mines[i][j] != gameField[i][j]) {
+                return 0
+            }
+        }
+    }
+    return 1
+}
+
+fun setMine(gameField: MutableList<MutableList<String>>) {
+    println("Set/delete mines marks (x and y coordinates):")
+    val cord = readln().split(" ")
+    val cordX = cord[0].toInt() - 1
+    val cordY = cord[1].toInt() - 1
+    if(gameField[cordX][cordY] == "*") {
+        gameField[cordX][cordY] = "."
+    } else if(gameField[cordX][cordY] == "."){
+        gameField[cordX][cordY] = "*"
+    } else {
+        println("There is a number here!")
+        setMine(gameField)
+    }
 }
