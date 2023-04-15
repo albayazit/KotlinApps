@@ -1,123 +1,99 @@
+import java.beans.Expression
+import java.lang.Exception
 import kotlin.random.Random
 
 fun main() {
-    val field = gameField()
-    val mineCount = dataRead()
-    fieldMine(field, mineCount)
-    fieldMines(field)
-    val fieldClone = hideMine(field)
+    val game = MineSweeper()
+    game.inputMines()
+    game.fieldGen()
+    game.minesGen()
+    game.output()
     while (true) {
-        if (gameOver(field, fieldClone) == 1) return println("Congratulations! You found all the mines!")
-        gameOut(field)
-        setMine(field)
+        game.inputSet()
+        game.output()
     }
 }
-fun dataRead(): Int {
-    print("How many mines do you want on the field? > ")
-    return readln().toInt()
-}
 
-fun gameField(): MutableList<MutableList<String>> {
-    return mutableListOf(
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", "."),
-        mutableListOf(".", ".", ".", ".", ".", ".", ".", ".", ".")
-    )
-}
+class MineSweeper {
+    private val field = mutableListOf(mutableListOf<String>())
+    private val fieldMain = mutableListOf(mutableListOf<String>())
+    private val fieldHelper = mutableListOf(mutableListOf<String>())
+    private var mineCount = 0
 
-fun fieldMine(gameField: MutableList<MutableList<String>>, mineCount: Int) {
-    for (i in 0 until mineCount) {
-        var randCount = Random.nextInt(0, 9)
-        var randCountTwo = Random.nextInt(0, 9)
-        while (gameField[randCount][randCountTwo] == "X") {
-            randCount = Random.nextInt(0, 9)
-            randCountTwo = Random.nextInt(0, 9)
+    fun inputMines() {
+        println("How many mines do you want on the field?")
+        mineCount = readln().toInt()
+    }
+
+    fun inputSet() {
+        println("Set/unset mines marks or claim a cell as free:")
+        val data = readln().split(" ")
+        val cordX = data[0].toInt() - 1
+        val cordY = data[1].toInt() - 1
+        val action = data[2]
+        when (action) {
+            "free" -> freeField(cordX, cordY)
         }
-        gameField[randCount][randCountTwo] = "X"
     }
-}
 
-fun fieldMines(gameField: MutableList<MutableList<String>>) {
-    for (i in 0..8) {
-        for(j in 0..8){
-            if(gameField[i][j] == ".") {
-                mineCheck(gameField, i, j)
+    fun freeField(cordX: Int, cordY: Int) {
+        if(field[cordY][cordX] == "X") return println("GG")
+        else {
+            freeEmpty(cordX, cordY)
+        }
+    }
+
+    fun freeEmpty(cordX: Int, cordY: Int) {
+        if(field[cordY][cordX] != "/") fieldMain[cordY][cordX] = field[cordY][cordX]
+    }
+
+    fun fieldGen() {
+        for(i in 0..8) {
+            for(j in 0..8) {
+                field[i].add("/")
+                fieldMain[i].add(".")
+            }
+            field.add(mutableListOf())
+            fieldMain.add(mutableListOf())
+        }
+    }
+
+    fun minesGen() {
+
+        repeat(mineCount) {
+            var mineX: Int
+            var mineY: Int
+            do{
+                mineX = Random.nextInt(0, 9)
+                mineY = Random.nextInt(0, 9)
+            } while (field[mineX][mineY] == "X")
+            field[mineX][mineY] = "X"
+            minesGenSetMine(mineX, mineY)
+        }
+
+    }
+    fun minesGenSetMine(mineX: Int, mineY: Int) {
+        for(i in -1..1) {
+            for(j in -1..1) {
+                try {
+                    field[mineX + i][mineY + j] = (if (field[mineX + i][mineY + j] == "/") {
+                        1
+                    } else {
+                        field[mineX + i][mineY + j].toInt() + 1
+                    }).toString()
+                }
+                catch (e: Exception) {
+                    continue
+                }
             }
         }
     }
-}
 
-fun mineCheck(gameField: MutableList<MutableList<String>>, i: Int, j: Int) {
-    var sum = 0
-    for (k in -1..1) {
-        for (n in -1..1) {
-            try {
-                if (gameField[i + k][j + n] == "X") sum += 1
-            }
-            finally {
-                continue
-            }
+    fun output() {
+        println(" │123456789│\n—│—————————│")
+        for(i in 0..8) {
+            println("${i + 1}|${fieldMain[i].joinToString("")}|")
         }
-    }
-    if(sum != 0) gameField[i][j] = sum.toString()
-    else gameField[i][j] = "."
-}
-
-fun hideMine(gameField: MutableList<MutableList<String>>): MutableList<MutableList<String>> {
-    val mines = gameField()
-    for (i in 0..8) {
-        for(j in 0..8) {
-            mines[i][j] = gameField[i][j]
-        }
-    }
-    for (i in 0..8) {
-        for(j in 0..8){
-            if(gameField[i][j] == "X") {
-                gameField[i][j] = "."
-                mines[i][j] = "*"
-            }
-        }
-    }
-    return mines
-}
-
-
-fun gameOut(gameField: MutableList<MutableList<String>>) {
-    println(" │123456789│\n—│—————————│")
-    for(i in gameField.indices) {
-        println("${i + 1}|" + gameField[i].joinToString("") + "|")
-    }
-    println("—│—————————│")
-}
-
-fun gameOver(gameField: MutableList<MutableList<String>>, mines: MutableList<MutableList<String>>): Int {
-    for(i in 0..8) {
-        for(j in 0..8) {
-            if(mines[i][j] != gameField[i][j]) {
-                return 0
-            }
-        }
-    }
-    return 1
-}
-
-fun setMine(gameField: MutableList<MutableList<String>>) {
-    println("Set/delete mines marks (x and y coordinates):")
-    val cord = readln().split(" ")
-    val cordX = cord[0].toInt() - 1
-    val cordY = cord[1].toInt() - 1
-    if(gameField[cordX][cordY] == "*") {
-        gameField[cordX][cordY] = "."
-    } else if(gameField[cordX][cordY] == "."){
-        gameField[cordX][cordY] = "*"
-    } else {
-        println("There is a number here!")
-        setMine(gameField)
+        println("—│—————————│")
     }
 }
