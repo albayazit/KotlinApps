@@ -1,5 +1,5 @@
-import java.beans.Expression
 import java.lang.Exception
+import kotlin.contracts.contract
 import kotlin.random.Random
 
 fun main() {
@@ -17,7 +17,8 @@ fun main() {
 class MineSweeper {
     private val field = mutableListOf(mutableListOf<String>())
     private val fieldMain = mutableListOf(mutableListOf<String>())
-    private val fieldHelper = mutableListOf(mutableListOf<String>())
+    val fields = mutableListOf<MutableList<Int>>()
+    val fieldAll = mutableListOf<MutableList<Int>>()
     private var mineCount = 0
 
     fun inputMines() {
@@ -39,12 +40,36 @@ class MineSweeper {
     fun freeField(cordX: Int, cordY: Int) {
         if(field[cordY][cordX] == "X") return println("GG")
         else {
+            fieldMain[cordY][cordX] = field[cordY][cordX]
             freeEmpty(cordX, cordY)
         }
     }
 
     fun freeEmpty(cordX: Int, cordY: Int) {
-        if(field[cordY][cordX] != "/") fieldMain[cordY][cordX] = field[cordY][cordX]
+        fields.add(mutableListOf(cordX, cordY))
+        while(fields.size != 0) {
+            val firstCord = fields[0][0]
+            val secondCord = fields[0][1]
+            freeEmptyCheck(firstCord, secondCord)
+        }
+    }
+
+    fun freeEmptyCheck(x: Int, y: Int) {
+        if(mutableListOf(x, y) !in fieldAll) {
+            fieldAll.add(mutableListOf(x, y))
+            fields.remove(mutableListOf(x, y))
+        }
+        else {
+            try {
+                fieldMain[y][x] = field[y][x]
+                if(field[x + 1][y] != "X") {
+                    fields.add(mutableListOf(x + 1, y))
+                }
+            }
+            catch (_: Exception) {
+
+            }
+        }
     }
 
     fun fieldGen() {
@@ -59,7 +84,6 @@ class MineSweeper {
     }
 
     fun minesGen() {
-
         repeat(mineCount) {
             var mineX: Int
             var mineY: Int
