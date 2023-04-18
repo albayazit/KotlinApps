@@ -9,67 +9,131 @@ fun main() {
     game.minesGen()
     game.output()
     while (true) {
-        game.inputSet()
+        if(game.inputSet() == 1) {
+            game.output()
+            return println("You stepped on a mine and failed!")
+        }
         game.output()
+        if(game.overCheckMine() == 1) return println("Congratulations! You found all the mines!")
+        if(game.overCheckMark() == 1) return println("Congratulations! You found all the mines!")
     }
 }
 
 class MineSweeper {
-    private val field = mutableListOf(mutableListOf<String>())
-    private val fieldMain = mutableListOf(mutableListOf<String>())
-    val fields = mutableListOf<MutableList<Int>>()
-    val fieldAll = mutableListOf<MutableList<Int>>()
+    private var field = mutableListOf(mutableListOf<String>())
+    private var fieldMain = mutableListOf(mutableListOf<String>())
+    private val cells = mutableListOf<MutableList<Int>>()
+    private val cellsAll = mutableListOf<MutableList<Int>>()
     private var mineCount = 0
+    private var firstMove = true
 
     fun inputMines() {
         println("How many mines do you want on the field?")
         mineCount = readln().toInt()
     }
 
-    fun inputSet() {
+    fun inputSet(): Int {
         println("Set/unset mines marks or claim a cell as free:")
         val data = readln().split(" ")
-        val cordX = data[0].toInt() - 1
-        val cordY = data[1].toInt() - 1
-        val action = data[2]
-        when (action) {
-            "free" -> freeField(cordX, cordY)
+        val cordY = data[0].toInt() - 1
+        val cordX = data[1].toInt() - 1
+        when (data[2]) {
+            "free" -> if(freeField(cordX, cordY) == 1) return 1
+            "mine" -> markMine(cordX, cordY)
         }
+        firstMove = false
+        return 0
     }
 
-    fun freeField(cordX: Int, cordY: Int) {
-        if(field[cordY][cordX] == "X") return println("GG")
-        else {
-            fieldMain[cordY][cordX] = field[cordY][cordX]
-            freeEmpty(cordX, cordY)
-        }
+    private fun markMine(x: Int, y: Int) {
+        if(fieldMain[x][y] == "*") fieldMain[x][y] = "."
+        else if(fieldMain[x][y] == ".") fieldMain[x][y] = "*"
     }
 
-    fun freeEmpty(cordX: Int, cordY: Int) {
-        fields.add(mutableListOf(cordX, cordY))
-        while(fields.size != 0) {
-            val firstCord = fields[0][0]
-            val secondCord = fields[0][1]
-            freeEmptyCheck(firstCord, secondCord)
+    fun overCheckMine() : Int{
+        for(i in 0..8) {
+            if(fieldMain[i].joinToString("") != field[i].joinToString("").replace("X", ".")) return 0
         }
+        return 1
     }
 
-    fun freeEmptyCheck(x: Int, y: Int) {
-        if(mutableListOf(x, y) !in fieldAll) {
-            fieldAll.add(mutableListOf(x, y))
-            fields.remove(mutableListOf(x, y))
-        }
-        else {
-            try {
-                fieldMain[y][x] = field[y][x]
-                if(field[x + 1][y] != "X") {
-                    fields.add(mutableListOf(x + 1, y))
+    fun overCheckMark(): Int {
+        var haveMark = false
+        for(i in 0..8) {
+            for(j in 0..8) {
+                if(fieldMain[i][j] == "*") {
+                    haveMark = true
+                    if(field[i][j] != "X") return 0
                 }
-            }
-            catch (_: Exception) {
-
+                if (field[i][j] == "X" && fieldMain[i][j] != "*") return 0
             }
         }
+        return if(!haveMark) 0
+        else 1
+    }
+
+    private fun freeField(cordX: Int, cordY: Int): Int {
+        if(field[cordX][cordY] == "X"){
+           if(!firstMove) {
+               openMines()
+               return 1
+           }
+           rearrangeMine(cordX, cordY)
+        } else if (field[cordX][cordY] == "/") {
+            fieldMain[cordX][cordY] = field[cordX][cordY]
+            freeFieldOpen(cordX, cordY)
+        } else {
+            fieldMain[cordX][cordY] = field[cordX][cordY]
+        }
+        return 0
+    }
+
+    fun rearrangeMine(x: Int, y: Int) {
+        do {
+            field = mutableListOf(mutableListOf<String>())
+            fieldMain = mutableListOf(mutableListOf<String>())
+            fieldGen()
+            minesGen()
+        }
+        while (field[x][y] != "/")
+        freeField(x, y)
+    }
+
+    fun openMines() {
+        for (i in 0..8) {
+            for (j in 0..8) {
+                if(field[i][j] == "X") fieldMain[i][j] = "X"
+            }
+        }
+    }
+
+    private fun freeFieldOpen(cordX: Int, cordY: Int) {
+        cells.add(mutableListOf(cordX, cordY))
+        while(cells.size > 0) {
+            val x = cells[0][0]
+            val y = cells[0][1]
+            fieldMain[x][y] = field[x][y]
+            if(field[x][y] != "/") {
+                cellsAll.add(mutableListOf(x, y))
+                cells.remove(mutableListOf(x, y))
+                continue
+            }
+            else {
+                checkNeigh(x, y)
+            }
+            cellsAll.add(mutableListOf(x, y))
+            cells.remove(mutableListOf(x, y))
+        }
+    }
+    fun checkNeigh(x: Int, y: Int) {
+        if(x < 8 && mutableListOf(x + 1, y) !in cellsAll && mutableListOf(x + 1, y) !in cells) cells.add(mutableListOf(x + 1, y))
+        if(x > 0 && mutableListOf(x - 1, y) !in cellsAll && mutableListOf(x - 1, y) !in cells) cells.add(mutableListOf(x - 1, y))
+        if(y < 8 && mutableListOf(x, y + 1) !in cellsAll && mutableListOf(x, y + 1) !in cells) cells.add(mutableListOf(x, y + 1))
+        if(y > 0 && mutableListOf(x, y - 1) !in cellsAll && mutableListOf(x, y - 1) !in cells) cells.add(mutableListOf(x, y - 1))
+        if (x < 8 && y < 8 && field[x + 1][y] != "/" && field[x][y + 1] != "/" && field[x + 1][y + 1] != "/") fieldMain[x + 1][y + 1] = field[x + 1][y + 1]
+        if (x > 0 && y > 0 && field[x - 1][y] != "/" && field[x][y - 1] != "/" && field[x - 1][y - 1] != "/") fieldMain[x - 1][y - 1] = field[x - 1][y - 1]
+        if (x < 8 && y > 0 && field[x + 1][y] != "/" && field[x][y - 1] != "/" && field[x + 1][y - 1] != "/") fieldMain[x + 1][y - 1] = field[x + 1][y - 1]
+        if (x > 0 && y < 8 && field[x - 1][y] != "/" && field[x][y + 1] != "/" && field[x - 1][y + 1] != "/") fieldMain[x - 1][y + 1] = field[x - 1][y + 1]
     }
 
     fun fieldGen() {
@@ -96,6 +160,7 @@ class MineSweeper {
         }
 
     }
+
     fun minesGenSetMine(mineX: Int, mineY: Int) {
         for(i in -1..1) {
             for(j in -1..1) {
