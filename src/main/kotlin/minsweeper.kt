@@ -1,5 +1,4 @@
 import java.lang.Exception
-import kotlin.contracts.contract
 import kotlin.random.Random
 
 fun main() {
@@ -7,6 +6,10 @@ fun main() {
     game.inputMines()
     game.fieldGen()
     game.minesGen()
+    while(true) {
+        if(game.emptyCheck() == 0) break
+        else game.clearMass()
+    }
     game.output()
     while (true) {
         if(game.inputSet() == 1) {
@@ -14,8 +17,7 @@ fun main() {
             return println("You stepped on a mine and failed!")
         }
         game.output()
-        if(game.overCheckMine() == 1) return println("Congratulations! You found all the mines!")
-        if(game.overCheckMark() == 1) return println("Congratulations! You found all the mines!")
+        if(game.overCheckMine() == 1 || game.overCheckMark() == 1) return println("Congratulations! You found all the mines!")
     }
 }
 
@@ -42,6 +44,25 @@ class MineSweeper {
             "mine" -> markMine(cordX, cordY)
         }
         firstMove = false
+        return 0
+    }
+
+    fun emptyCheck(): Int {
+        for(i in 0..8) {
+            for (j in 0..8) {
+                if(field[i][j] == "/") {
+                    if(emptyCheckReplace(i, j) == 1) return 1
+                }
+            }
+        }
+        return 0
+    }
+
+    private fun emptyCheckReplace(x: Int, y: Int): Int {
+        if (x < 8 && y < 8 && field[x + 1][y + 1] == "/" && field[x + 1][y] != "/" && field[x][y + 1] != "/") return 1
+        if (x > 0 && y > 0 && field[x - 1][y - 1] == "/" && field[x - 1][y] != "/" && field[x][y - 1] != "/") return 1
+        if (x < 8 && y > 0 && field[x + 1][y - 1] == "/" && field[x + 1][y] != "/" && field[x][y - 1] != "/") return 1
+        if (x > 0 && y < 8 && field[x - 1][y + 1] == "/" && field[x - 1][y] != "/" && field[x][y + 1] != "/") return 1
         return 0
     }
 
@@ -88,18 +109,23 @@ class MineSweeper {
         return 0
     }
 
-    fun rearrangeMine(x: Int, y: Int) {
+    fun clearMass() {
+        field = mutableListOf(mutableListOf())
+        fieldMain = mutableListOf(mutableListOf())
+        fieldGen()
+        minesGen()
+    }
+
+    private fun rearrangeMine(x: Int, y: Int) {
         do {
-            field = mutableListOf(mutableListOf<String>())
-            fieldMain = mutableListOf(mutableListOf<String>())
-            fieldGen()
-            minesGen()
-        }
-        while (field[x][y] != "/")
+            clearMass()
+            if(emptyCheck() == 0) break
+            else rearrangeMine(x, y)
+        } while (field[x][y] != "/")
         freeField(x, y)
     }
 
-    fun openMines() {
+    private fun openMines() {
         for (i in 0..8) {
             for (j in 0..8) {
                 if(field[i][j] == "X") fieldMain[i][j] = "X"
@@ -117,23 +143,22 @@ class MineSweeper {
                 cellsAll.add(mutableListOf(x, y))
                 cells.remove(mutableListOf(x, y))
                 continue
-            }
-            else {
+            } else {
                 checkNeigh(x, y)
             }
             cellsAll.add(mutableListOf(x, y))
             cells.remove(mutableListOf(x, y))
         }
     }
-    fun checkNeigh(x: Int, y: Int) {
-        if(x < 8 && mutableListOf(x + 1, y) !in cellsAll && mutableListOf(x + 1, y) !in cells) cells.add(mutableListOf(x + 1, y))
-        if(x > 0 && mutableListOf(x - 1, y) !in cellsAll && mutableListOf(x - 1, y) !in cells) cells.add(mutableListOf(x - 1, y))
-        if(y < 8 && mutableListOf(x, y + 1) !in cellsAll && mutableListOf(x, y + 1) !in cells) cells.add(mutableListOf(x, y + 1))
-        if(y > 0 && mutableListOf(x, y - 1) !in cellsAll && mutableListOf(x, y - 1) !in cells) cells.add(mutableListOf(x, y - 1))
-        if (x < 8 && y < 8 && field[x + 1][y] != "/" && field[x][y + 1] != "/" && field[x + 1][y + 1] != "/") fieldMain[x + 1][y + 1] = field[x + 1][y + 1]
-        if (x > 0 && y > 0 && field[x - 1][y] != "/" && field[x][y - 1] != "/" && field[x - 1][y - 1] != "/") fieldMain[x - 1][y - 1] = field[x - 1][y - 1]
-        if (x < 8 && y > 0 && field[x + 1][y] != "/" && field[x][y - 1] != "/" && field[x + 1][y - 1] != "/") fieldMain[x + 1][y - 1] = field[x + 1][y - 1]
-        if (x > 0 && y < 8 && field[x - 1][y] != "/" && field[x][y + 1] != "/" && field[x - 1][y + 1] != "/") fieldMain[x - 1][y + 1] = field[x - 1][y + 1]
+    private fun checkNeigh(x: Int, y: Int) {
+        if (x < 8 && mutableListOf(x + 1, y) !in cellsAll && mutableListOf(x + 1, y) !in cells) cells.add(mutableListOf(x + 1, y))
+        if (x > 0 && mutableListOf(x - 1, y) !in cellsAll && mutableListOf(x - 1, y) !in cells) cells.add(mutableListOf(x - 1, y))
+        if (y < 8 && mutableListOf(x, y + 1) !in cellsAll && mutableListOf(x, y + 1) !in cells) cells.add(mutableListOf(x, y + 1))
+        if (y > 0 && mutableListOf(x, y - 1) !in cellsAll && mutableListOf(x, y - 1) !in cells) cells.add(mutableListOf(x, y - 1))
+        if (x < 8 && y < 8 && field[x + 1][y] != "/" && field[x][y + 1] != "/") fieldMain[x + 1][y + 1] = field[x + 1][y + 1]
+        if (x > 0 && y > 0 && field[x - 1][y] != "/" && field[x][y - 1] != "/") fieldMain[x - 1][y - 1] = field[x - 1][y - 1]
+        if (x < 8 && y > 0 && field[x + 1][y] != "/" && field[x][y - 1] != "/") fieldMain[x + 1][y - 1] = field[x + 1][y - 1]
+        if (x > 0 && y < 8 && field[x - 1][y] != "/" && field[x][y + 1] != "/") fieldMain[x - 1][y + 1] = field[x - 1][y + 1]
     }
 
     fun fieldGen() {
@@ -151,7 +176,7 @@ class MineSweeper {
         repeat(mineCount) {
             var mineX: Int
             var mineY: Int
-            do{
+            do {
                 mineX = Random.nextInt(0, 9)
                 mineY = Random.nextInt(0, 9)
             } while (field[mineX][mineY] == "X")
@@ -161,7 +186,7 @@ class MineSweeper {
 
     }
 
-    fun minesGenSetMine(mineX: Int, mineY: Int) {
+    private fun minesGenSetMine(mineX: Int, mineY: Int) {
         for(i in -1..1) {
             for(j in -1..1) {
                 try {
@@ -170,8 +195,7 @@ class MineSweeper {
                     } else {
                         field[mineX + i][mineY + j].toInt() + 1
                     }).toString()
-                }
-                catch (e: Exception) {
+                } catch (e: Exception) {
                     continue
                 }
             }
