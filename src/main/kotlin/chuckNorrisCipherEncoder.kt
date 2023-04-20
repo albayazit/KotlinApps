@@ -5,7 +5,7 @@ fun main() {
     println("The result:")
     for(ch in word) {
         var binary = ""
-//        binary = String.format("%7S", 0,  Integer.toBinaryString(ch.toInt()))
+        binary = String.format("%7S", Integer.toBinaryString(ch.toInt())).replace(' ', '0')
         println("$ch = $binary")
     }
 }
