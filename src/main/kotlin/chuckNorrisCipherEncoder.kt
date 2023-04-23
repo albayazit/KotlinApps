@@ -1,7 +1,8 @@
 fun main() {
-    val encoder = cipherEncoder()
-    encoder.inputData()
-    encoder.convertToBinary()
+    val cipher = cipherEncoder()
+    cipher.inputData()
+    cipher.convertToBinary()
+    cipher.decode()
 }
 
 class cipherEncoder {
@@ -15,11 +16,39 @@ class cipherEncoder {
 
     fun convertToBinary() {
         for(ch in word) {
-            binary = String.format("%7S", Integer.toBinaryString(ch.toInt())).replace(' ', '0')
-            encodeBinary(binary)
+            binary += String.format("%7S", Integer.toBinaryString(ch.toInt())).replace(' ', '0')
         }
     }
 
-    fun encodeBinary(binary: String) {
+    fun code() {
+        var count = 0
+        while(count != binary.length) {
+            if(binary[count] == '1') {
+                print("0 ")
+                for(i in count until binary.length) {
+                    if(binary[i] == '1') {
+                        print('0')
+                        count++
+                    } else break
+                }
+                print(' ')
+            } else{
+                print("00 ")
+                for(i in count until binary.length) {
+                    if(binary[i] == '0') {
+                        print('0')
+                        count++
+                    } else break
+                }
+                print(' ')
+            }
+        }
+    }
+
+    fun decode() {
+        var count = 0
+        while(count != binary.length) {
+
+        }
     }
 }
