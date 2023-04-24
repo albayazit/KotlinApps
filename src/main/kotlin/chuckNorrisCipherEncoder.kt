@@ -11,7 +11,7 @@ class cipherEncoder {
     var word = ""
     var binaryAll = ""
     fun inputData() {
-        println("Input string:")
+        println("Input encoded string:")
         word = readln()
     }
 
@@ -69,14 +69,11 @@ class cipherEncoder {
         }
     }
 
-//    fun decodeToString() {
-//        var count = 0
-//        var stringNum = ""
-//        for(i in binaryAll.indices) {
-//            if(count % 7 == 0) {
-//                println(stringNum)
-//            }
-//            count++
-//        }
-//    }
+    fun decodeToString() {
+        println("The result:")
+        val chunkedBinary = binaryAll.chunked(7)
+        for(i in chunkedBinary.indices) {
+            print(Integer.parseInt(chunkedBinary[i], 2).toChar())
+        }
+    }
 }
