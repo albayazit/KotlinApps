@@ -3,12 +3,13 @@ fun main() {
     cipher.inputData()
     cipher.convertToBinary()
     cipher.decode()
+    cipher.decodeToString()
 }
 
 class cipherEncoder {
     var binary = ""
     var word = ""
-    var encoded = ""
+    var binaryAll = ""
     fun inputData() {
         println("Input string:")
         word = readln()
@@ -47,8 +48,35 @@ class cipherEncoder {
 
     fun decode() {
         var count = 0
-        while(count != binary.length) {
-
+        while(count < word.length) {
+            if (word[count] == '0' && word[count + 1] == '0') {
+                count += 3
+                for (i in count until word.length) {
+                    count++
+                    if (word[i] == '0') {
+                        binaryAll += '0'
+                    } else break
+                }
+            } else {
+                count += 2
+                for (i in count until word.length) {
+                    count++
+                    if (word[i] == '0') {
+                        binaryAll += '1'
+                    } else break
+                }
+            }
         }
     }
+
+//    fun decodeToString() {
+//        var count = 0
+//        var stringNum = ""
+//        for(i in binaryAll.indices) {
+//            if(count % 7 == 0) {
+//                println(stringNum)
+//            }
+//            count++
+//        }
+//    }
 }
