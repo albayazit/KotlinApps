@@ -89,8 +89,8 @@ class CipherEncoder {
         var count = 0
         binaryAll = ""
         while(count < word.length) {
+            if(count + 2 == word.length) return 1
             if (word[count] == '0' && word[count + 1] == '0' && word[count + 2] == ' ') {
-                if(count + 3 == word.length) return 1
                 count += 3
                 for (i in count until word.length) {
                     count++
@@ -99,7 +99,6 @@ class CipherEncoder {
                     } else break
                 }
             } else if (word[count] == '0' && word[count + 1] == ' ') {
-                if(count + 2 == word.length) return 1
                 count += 2
                 for (i in count until word.length) {
                     count++
