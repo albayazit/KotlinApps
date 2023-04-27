@@ -25,31 +25,24 @@ class Parking {
             if(i.status == "FREE") {
                 println("$color car parked in spot ${i.ordinal + 1}.")
                 i.status = "BUSY"
-                break
+                return
             }
         }
+        println("Sorry, the parking lot is full.")
     }
 
     fun leave() {
         val spot = data[1].toInt()
-        when (spot) {
-            1 -> {
-                if(DATABASE.SPOT1.status == "FREE") {
-                    println("There is no car in spot 1.")
+        for(i in DATABASE.values()) {
+            if(i.ordinal == spot - 1) {
+                if(i.status == "FREE") {
+                    println("There is no car in spot ${spot}.")
                 }
                 else {
-                    println("Spot 1 is free.")
-                    DATABASE.SPOT1.status = "FREE"
+                    println("Spot ${spot} is free.")
+                    i.status = "FREE"
                 }
-            }
-            2 -> {
-                if(DATABASE.SPOT2.status == "FREE") {
-                    println("There is no car in spot 2.")
-                }
-                else {
-                    println("Spot 2 is free.")
-                    DATABASE.SPOT1.status = "FREE"
-                }
+                break
             }
         }
     }
@@ -57,6 +50,6 @@ class Parking {
 }
 
 enum class DATABASE(var number: String = "NULL", var status: String = "FREE") {
-    SPOT1(),
-    SPOT2()
+    SPOT1(), SPOT2(), SPOT3(), SPOT4(), SPOT5(), SPOT6(), SPOT7(), SPOT8(), SPOT9(), SPOT10(),
+    SPOT11(), SPOT12(), SPOT13(), SPOT14(), SPOT15(), SPOT16(), SPOT17(), SPOT18(), SPOT19(), SPOT20()
 }
