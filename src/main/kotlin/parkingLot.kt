@@ -16,10 +16,23 @@ class Parking {
             "status" -> status()
             "park" -> park()
             "leave" -> leave()
+            "reg_by_color" -> regByColor()
+//            "spot_by_reg" -> spotByReg()
             "exit" -> return 1
         }
         return 0
     }
+
+    fun regByColor() {
+        val color = data[1].uppercase()
+        var numbers = mutableListOf<String>()
+        for(i in db.indices) {
+            if(db[i][2].uppercase() == color) numbers.add(db[i][1])
+        }
+        println(numbers.joinToString())
+
+    }
+
 
     private fun create() {
         db.clear()
