@@ -24,10 +24,10 @@ class Parking {
         return 0
     }
 
-    fun regByColor() {
+    private fun regByColor() {
         if(dataCheck() == 1) return
         val color = data[1].uppercase()
-        var numbers = mutableListOf<String>()
+        val numbers = mutableListOf<String>()
         for(i in db.indices) {
             if(db[i][2].uppercase() == color) numbers.add(db[i][1])
         }
@@ -35,7 +35,7 @@ class Parking {
         else println(numbers.joinToString())
     }
 
-    fun spotByReg() {
+    private fun spotByReg() {
         if(dataCheck() == 1) return
         val number = data[1].uppercase()
         val spots = mutableListOf<String>()
@@ -46,7 +46,7 @@ class Parking {
         else println(spots.joinToString())
     }
 
-    fun spotByColor() {
+    private fun spotByColor() {
         if(dataCheck() == 1) return
         val color = data[1].uppercase()
         val spots = mutableListOf<String>()
