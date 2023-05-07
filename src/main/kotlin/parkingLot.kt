@@ -17,22 +17,33 @@ class Parking {
             "park" -> park()
             "leave" -> leave()
             "reg_by_color" -> regByColor()
-//            "spot_by_reg" -> spotByReg()
+            "spot_by_reg" -> spotByReg()
             "exit" -> return 1
         }
         return 0
     }
 
     fun regByColor() {
+        if(dataCheck() == 1) return
         val color = data[1].uppercase()
         var numbers = mutableListOf<String>()
         for(i in db.indices) {
             if(db[i][2].uppercase() == color) numbers.add(db[i][1])
         }
-        println(numbers.joinToString())
-
+        if(numbers.size == 0) println("No cars with color $color were found.")
+        else println(numbers.joinToString())
     }
 
+    fun spotByReg() {
+        if(dataCheck() == 1) return
+        val number = data[1].uppercase()
+        val spots = mutableListOf<String>()
+        for(i in db.indices) {
+            if(db[i][1].uppercase() == number) spots.add(db[i][0])
+        }
+        if(spots.size == 0) println("No cars with registration number $number were found.")
+        println(spots.joinToString())
+    }
 
     private fun create() {
         db.clear()
