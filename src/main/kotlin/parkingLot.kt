@@ -84,6 +84,4 @@ class Parking {
     }
 }
 
-class DATABASE {
-    var database = mutableListOf<MutableList<String>>()
-}
+class DATABASE { var database = mutableListOf<MutableList<String>>() }
