@@ -18,7 +18,10 @@ class Indigo {
             "reset" -> reset()
             "shuffle" -> shuffle()
             "get" -> get()
-            "exit" -> return 1
+            "exit" -> {
+                println("Bye")
+                return 1
+            }
             else -> println("Wrong action.")
         }
         return 0
