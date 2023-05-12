@@ -5,7 +5,13 @@ fun main() {
     }
 }
 
+//println("A 2 3 4 5 6 7 8 9 10 J Q K")
+//println("♦ ♥ ♠ ♣")
+//println("A♠ 2♠ 3♠ 4♠ 5♠ 6♠ 7♠ 8♠ 9♠ 10♠ J♠ Q♠ K♠ A♥ 2♥ 3♥ 4♥ 5♥ 6♥ 7♥ 8♥ 9♥ 10♥ J♥ Q♥ K♥ A♦ 2♦ 3♦ 4♦ 5♦ 6♦ 7♦ 8♦ 9♦ 10♦ J♦ Q♦ K♦ A♣ 2♣ 3♣ 4♣ 5♣ 6♣ 7♣ 8♣ 9♣ 10♣ J♣ Q♣ K♣"
+
 class Indigo {
+    var cards = mutableListOf<String>()
+
     fun input(): Int {
         println("Choose an action (reset, shuffle, get, exit):")
         when (readln()) {
@@ -13,11 +19,15 @@ class Indigo {
             "shuffle" -> shuffle()
             "get" -> get()
             "exit" -> return 1
+            else -> println("Wrong action.")
         }
         return 0
     }
 
-    fun reset() {}
+    fun reset() {
+        cards = mutableListOf("A♠", "2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9♠", "10♠", "J♠", "Q♠", "K♠", "A♥", "2♥", "3♥", "4♥", "5♥", "6♥", "7♥", "8♥", "9♥", "10♥", "J♥", "Q♥", "K♥", "A♦", "2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♣", "2♣", "3♣", "4♣", "5♣", "6♣", "7♣", "8♣", "9♣", "10♣", "J♣", "Q♣", "K♣")
+        println("Card deck is reset.")
+    }
     fun shuffle() {}
     fun get() {}
 }
