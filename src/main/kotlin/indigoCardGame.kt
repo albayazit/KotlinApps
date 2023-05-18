@@ -118,4 +118,10 @@ class IndigoGame {
     private fun gameOver(): Boolean {
         return game.cardsInTable.size == 52
     }
+
+    private fun winCards() {}
+
+    private fun showScore() {}
+
+    private fun showCards() {}
 }
