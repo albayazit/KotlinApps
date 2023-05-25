@@ -9,6 +9,8 @@ class Card {
     var cardsInTable = mutableListOf<String>()
     var cardsInHandPlayer = mutableListOf<String>()
     var cardsInHandPC = mutableListOf<String>()
+    var winCardsPlayer = mutableListOf<String>()
+    var winCardsPC = mutableListOf<String>()
 
     fun shuffleCards() {
         cards.shuffle()
@@ -99,6 +101,7 @@ class IndigoGame {
                 if (action == "exit") return println("Game Over")
                 try {
                     action.toInt()
+                    winCardsPlayer(action.toInt())
                     game.cardsInTable.add(game.cardsInHandPlayer[action.toInt() - 1])
                     game.cardsInHandPlayer.removeAt(action.toInt() - 1)
                     initialCards("PC")
@@ -107,6 +110,7 @@ class IndigoGame {
             }
             "PC" -> {
                 println("Computer plays ${game.cardsInHandPC[0]}")
+                winCardsPC()
                 game.cardsInTable.add(game.cardsInHandPC[0])
                 game.cardsInHandPC.removeAt(0)
                 initialCards("PLAYER")
@@ -119,7 +123,29 @@ class IndigoGame {
         return game.cardsInTable.size == 52
     }
 
-    private fun winCards() {}
+    private fun winCardsPlayer(action: Int = 1) {
+        if (game.cardsInHandPlayer[action - 1].length == 3) {
+            if ((game.cardsInHandPlayer[action - 1][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] &&
+                game.cardsInHandPlayer[action - 1][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) ||
+                game.cardsInHandPlayer[action - 1][2] == game.cardsInTable[game.cardsInTable.lastIndex][2]) {
+                    println("Player wins cards")
+                    game.winCardsPlayer.addAll(game.cardsInTable)
+                    game.cardsInTable.clear()
+            }
+        }
+        else {
+            if (game.cardsInHandPlayer[action - 1][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] ||
+                game.cardsInHandPlayer[action - 1][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) {
+                    println("Player wins cards")
+                    game.winCardsPlayer.addAll(game.cardsInTable)
+                    game.cardsInTable.clear()
+            }
+        }
+    }
+
+    private fun winCardsPC() {
+
+    }
 
     private fun showScore() {}
 
