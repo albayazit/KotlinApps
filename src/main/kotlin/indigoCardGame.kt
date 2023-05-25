@@ -110,9 +110,9 @@ class IndigoGame {
             }
             "PC" -> {
                 println("Computer plays ${game.cardsInHandPC[0]}")
-                winCardsPC()
                 game.cardsInTable.add(game.cardsInHandPC[0])
                 game.cardsInHandPC.removeAt(0)
+                winCardsPC()
                 initialCards("PLAYER")
             }
         }
@@ -144,10 +144,28 @@ class IndigoGame {
     }
 
     private fun winCardsPC() {
-
+        if (game.cardsInHandPC[0].length == 3) {
+            if ((game.cardsInHandPC[0][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] &&
+                game.cardsInHandPC[0][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) ||
+                game.cardsInHandPC[0][2] == game.cardsInTable[game.cardsInTable.lastIndex][2]) {
+                    println("Computer wins cards")
+                    game.winCardsPC.addAll(game.cardsInTable)
+                    game.cardsInTable.clear()
+            }
+        }
+        else {
+            if (game.cardsInHandPC[0][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] ||
+                game.cardsInHandPC[0][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) {
+                    println("Computer wins cards")
+                    game.winCardsPlayer.addAll(game.cardsInTable)
+                    game.cardsInTable.clear()
+            }
+        }
     }
 
-    private fun showScore() {}
+    private fun showScore() {
+
+    }
 
     private fun showCards() {}
 }
