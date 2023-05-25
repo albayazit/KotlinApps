@@ -1,171 +1,115 @@
 fun main() {
-    val game = IndigoGame()
+    val game = GameCore()
     println("Indigo Card Game")
     game.intro()
 }
 
-class Card {
-    var cards = mutableListOf("A♠", "2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9♠", "10♠", "J♠", "Q♠", "K♠", "A♥", "2♥", "3♥", "4♥", "5♥", "6♥", "7♥", "8♥", "9♥", "10♥", "J♥", "Q♥", "K♥", "A♦", "2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♣", "2♣", "3♣", "4♣", "5♣", "6♣", "7♣", "8♣", "9♣", "10♣", "J♣", "Q♣", "K♣")
-    var cardsInTable = mutableListOf<String>()
-    var cardsInHandPlayer = mutableListOf<String>()
-    var cardsInHandPC = mutableListOf<String>()
-    var winCardsPlayer = mutableListOf<String>()
-    var winCardsPC = mutableListOf<String>()
-
-    fun shuffleCards() {
-        cards.shuffle()
-    }
-    fun getCards() {
-        repeat (4) {
-            cardsInTable.add(cards[it])
-        }
-        repeat (4) {
-            cards.removeAt(0)
-        }
-    }
-
-    fun giveCardsPlayer() {
-        repeat (6) {
-            cardsInHandPlayer.add(cards[it])
-        }
-        repeat (6) {
-            cards.removeAt(0)
-        }
-    }
-
-    fun giveCardsPC() {
-        repeat (6) {
-            cardsInHandPC.add(cards[it])
-        }
-        repeat (6) {
-            cards.removeAt(0)
-        }
-    }
-
-    fun printPlayerCards(): MutableList<String> {
-        val result = mutableListOf<String>()
-        for (i in cardsInHandPlayer.indices) {
-            result.add("${i + 1})" + cardsInHandPlayer[i])
-        }
-        return result
-    }
-}
-
-class IndigoGame {
-    private val game = Card()
+class GameCore {
+    val player = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
+    val computer = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
+    val card = Card(player, computer)
 
     fun intro() {
         println("Play first?")
-        val action = readln()
-        if (action.uppercase() == "YES") {
-            game.shuffleCards()
-            game.getCards()
-            game.giveCardsPlayer()
-            game.giveCardsPC()
-            println("Initial cards on the table: ${game.cardsInTable.joinToString().replace(", ", " ")}")
-            initialCards("PLAYER")
+        when (readln()) {
+            "yes" -> {
+                card.init()
+                nextMove("Player")
+            }
+            "no" -> {
+                card.init()
+                nextMove("Computer")
+            }
+            "exit" -> return println("Bye!")
+            else -> { intro() }
         }
-        else if (action.uppercase() == "NO") {
-            game.shuffleCards()
-            game.getCards()
-            game.giveCardsPlayer()
-            game.giveCardsPC()
-            println("Initial cards on the table: ${game.cardsInTable.joinToString().replace(", ", " ")}")
-            initialCards("PC")
-        }
-        else intro()
     }
 
-    private fun initialCards(turn: String) {
-        println("${game.cardsInTable.size} cards on the table, and the top card is ${game.cardsInTable[game.cardsInTable.lastIndex]}")
-        if (gameOver()) return println("Game Over")
+    fun nextMove(turn: String) {
+        card.showCards()
         when (turn) {
-            "PLAYER" -> {
-                if (game.cardsInHandPlayer.isEmpty() && game.cards.size != 0) game.giveCardsPlayer()
-                println("Cards in hand: ${game.printPlayerCards().joinToString().replace(",", "")}")
-                nextMove(turn)
+            "Player" -> {
+                card.showPlayerCards()
+                card.updateTable(readln().toInt(), "Player")
+                nextMove("Computer")
             }
-            "PC" -> {
-                if (game.cardsInHandPlayer.isEmpty() && game.cards.size != 0) game.giveCardsPC()
-                nextMove(turn)
-            }
-        }
-    }
-
-    private fun nextMove(turn: String) {
-        val action: String
-        when (turn) {
-            "PLAYER" -> {
-                println("Choose a card to play (1-${game.cardsInHandPlayer.size}):")
-                action = readln()
-                if (action == "exit") return println("Game Over")
-                try {
-                    action.toInt()
-                    winCardsPlayer(action.toInt())
-                    game.cardsInTable.add(game.cardsInHandPlayer[action.toInt() - 1])
-                    game.cardsInHandPlayer.removeAt(action.toInt() - 1)
-                    initialCards("PC")
-                }
-                catch (e: Exception) {nextMove(turn)}
-            }
-            "PC" -> {
-                println("Computer plays ${game.cardsInHandPC[0]}")
-                game.cardsInTable.add(game.cardsInHandPC[0])
-                game.cardsInHandPC.removeAt(0)
-                winCardsPC()
-                initialCards("PLAYER")
-            }
-        }
-        return
-    }
-
-    private fun gameOver(): Boolean {
-        return game.cardsInTable.size == 52
-    }
-
-    private fun winCardsPlayer(action: Int = 1) {
-        if (game.cardsInHandPlayer[action - 1].length == 3) {
-            if ((game.cardsInHandPlayer[action - 1][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] &&
-                game.cardsInHandPlayer[action - 1][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) ||
-                game.cardsInHandPlayer[action - 1][2] == game.cardsInTable[game.cardsInTable.lastIndex][2]) {
-                    println("Player wins cards")
-                    game.winCardsPlayer.addAll(game.cardsInTable)
-                    game.cardsInTable.clear()
-            }
-        }
-        else {
-            if (game.cardsInHandPlayer[action - 1][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] ||
-                game.cardsInHandPlayer[action - 1][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) {
-                    println("Player wins cards")
-                    game.winCardsPlayer.addAll(game.cardsInTable)
-                    game.cardsInTable.clear()
+            "Computer" -> {
+                card.updateTable(readln().toInt(), "Computer")
+                nextMove("Player")
             }
         }
     }
 
-    private fun winCardsPC() {
-        if (game.cardsInHandPC[0].length == 3) {
-            if ((game.cardsInHandPC[0][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] &&
-                game.cardsInHandPC[0][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) ||
-                game.cardsInHandPC[0][2] == game.cardsInTable[game.cardsInTable.lastIndex][2]) {
-                    println("Computer wins cards")
-                    game.winCardsPC.addAll(game.cardsInTable)
-                    game.cardsInTable.clear()
-            }
-        }
-        else {
-            if (game.cardsInHandPC[0][0] == game.cardsInTable[game.cardsInTable.lastIndex][0] ||
-                game.cardsInHandPC[0][1] == game.cardsInTable[game.cardsInTable.lastIndex][1]) {
-                    println("Computer wins cards")
-                    game.winCardsPlayer.addAll(game.cardsInTable)
-                    game.cardsInTable.clear()
-            }
-        }
-    }
-
-    private fun showScore() {
+    fun showScore() {
 
     }
-
-    private fun showCards() {}
 }
+
+class Card(val player: CardsOnHand, val computer: CardsOnHand) {
+    var cards = mutableListOf<String>()
+    var cardsInTable = mutableListOf<String>()
+
+    fun init() {
+        reset()
+        cards.shuffle()
+        initTable()
+        giveCards("Player", "Computer")
+    }
+
+    fun updateTable(card: Int, move: String) {
+        when (move) {
+            "Player" -> {
+                cardsInTable.add(player.inHand[card - 1])
+                player.inHand.removeAt(card - 1)
+            }
+            "Computer" -> {
+                cardsInTable.add(computer.inHand[card - 1])
+                computer.inHand.removeAt(card - 1)
+            }
+        }
+    }
+
+    fun showCards() {
+        if (cardsInTable.size == 0) println("No cards on the table")
+        println("${cardsInTable.size} cards on the table, and the top card is ${cardsInTable[cardsInTable.lastIndex]}")
+    }
+
+    fun showPlayerCards() {
+        println("Cards in hand: ${digitsToPlayerCards().joinToString().replace(", ", " ")}")
+        println("Choose a card to play (1-${player.inHand.size}):")
+    }
+
+    fun digitsToPlayerCards(): MutableList<String> {
+        val result = mutableListOf<String>()
+        for (i in player.inHand.indices) {
+            result.add("${i + 1})" + player.inHand[i])
+        }
+        return result
+    }
+
+    private fun initTable() {
+        repeat (4) { cardsInTable.add(cards[it]) }
+        repeat (4) { cards.removeAt(0) }
+        println("Initial cards on the table: ${cardsInTable.joinToString().replace(",", " ")}")
+    }
+
+    fun giveCards(givePlayer: String = "NULL", giveComputer: String = "NULL") {
+        if (givePlayer == "Player") {
+            repeat (6) { player.inHand.add(cards[it]) }
+            repeat (6) { cards.removeAt(0) }
+        }
+        if (giveComputer == "Computer") {
+            repeat (6) { computer.inHand.add(cards[it]) }
+            repeat (6) { cards.removeAt(0) }
+        }
+    }
+
+    private fun reset() {
+        cards = mutableListOf("A♠", "2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9♠", "10♠", "J♠", "Q♠", "K♠", "A♥", "2♥", "3♥", "4♥", "5♥", "6♥", "7♥", "8♥", "9♥", "10♥", "J♥", "Q♥", "K♥", "A♦", "2♦", "3♦", "4♦", "5♦", "6♦", "7♦", "8♦", "9♦", "10♦", "J♦", "Q♦", "K♦", "A♣", "2♣", "3♣", "4♣", "5♣", "6♣", "7♣", "8♣", "9♣", "10♣", "J♣", "Q♣", "K♣")
+        cardsInTable.clear()
+        player.inHand.clear()
+        computer.inHand.clear()
+    }
+}
+
+data class CardsOnHand(var inHand: MutableList<String>, var win: MutableList<String>, var score: Int)
