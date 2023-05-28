@@ -27,6 +27,8 @@ class GameCore {
 
     fun nextMove(turn: String) {
         card.showCards()
+        if (gameOver()) return println("Game Over")
+        card.giveCards("Player", "Computer")
         when (turn) {
             "Player" -> {
                 card.showPlayerCards()
@@ -34,14 +36,14 @@ class GameCore {
                 nextMove("Computer")
             }
             "Computer" -> {
-                card.updateTable(readln().toInt(), "Computer")
+                card.updateTable(0, "Computer")
                 nextMove("Player")
             }
         }
     }
 
-    fun showScore() {
-
+    fun gameOver(): Boolean {
+        return card.cardsInTable.size == 52
     }
 }
 
@@ -63,8 +65,9 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand) {
                 player.inHand.removeAt(card - 1)
             }
             "Computer" -> {
-                cardsInTable.add(computer.inHand[card - 1])
-                computer.inHand.removeAt(card - 1)
+                cardsInTable.add(computer.inHand[card])
+                computer.inHand.removeAt(card)
+                println("Computer plays ${cardsInTable[cardsInTable.lastIndex]}")
             }
         }
     }
@@ -94,11 +97,11 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand) {
     }
 
     fun giveCards(givePlayer: String = "NULL", giveComputer: String = "NULL") {
-        if (givePlayer == "Player") {
+        if (givePlayer == "Player" && player.inHand.size == 0 && cards.size >= 6) {
             repeat (6) { player.inHand.add(cards[it]) }
             repeat (6) { cards.removeAt(0) }
         }
-        if (giveComputer == "Computer") {
+        if (giveComputer == "Computer" && computer.inHand.size == 0 && cards.size >= 6) {
             repeat (6) { computer.inHand.add(cards[it]) }
             repeat (6) { cards.removeAt(0) }
         }
