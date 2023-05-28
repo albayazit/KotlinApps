@@ -35,7 +35,9 @@ class GameCore {
         when (turn) {
             "Player" -> {
                 println("Cards in hand: ${card.digitsToPlayerCards().joinToString().replace(", ", " ")}")
-                card.updateTable(readln().toInt(), "Player")
+                val action = getCardFromUser()
+                if (action == -1) return println("Bye!")
+                card.updateTable(action, "Player")
                 nextMove("Computer")
             }
             "Computer" -> {
@@ -45,6 +47,16 @@ class GameCore {
         }
     }
 
+    private fun getCardFromUser(): Int {
+        do {
+            println("Choose a card to play (1-${player.inHand.size}):")
+            val action = readln()
+            try {
+                if (action.toInt() in 1..player.inHand.size) return action.toInt()
+            } catch (_: Exception) {}
+        } while (action != "exit")
+        return -1
+    }
 
     fun gameOver(): Boolean {
         return player.win.size + computer.win.size == 52
