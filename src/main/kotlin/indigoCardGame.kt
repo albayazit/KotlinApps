@@ -5,10 +5,10 @@ fun main() {
 }
 
 class GameCore {
-    val player = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
-    val computer = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
-    var whoFirst = WhoFirst()
-    val card = Card(player, computer, whoFirst)
+    private val player = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
+    private val computer = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
+    private var whoFirst = WhoFirst()
+    private val card = Card(player, computer, whoFirst)
 
     fun intro() {
         println("Play first?")
@@ -28,21 +28,26 @@ class GameCore {
         }
     }
 
-    fun nextMove(turn: String) {
+    private fun nextMove(turn: String) {
         card.giveCards("Player", "Computer")
-        card.checkLast()
-        if (card.showCards() == 1) return println("Game Over")
-        when (turn) {
-            "Player" -> {
-                println("Cards in hand: ${card.digitsToPlayerCards().joinToString().replace(", ", " ")}")
-                val action = getCardFromUser()
-                if (action == -1) return println("Bye!")
-                card.updateTable(action, "Player")
-                nextMove("Computer")
-            }
-            "Computer" -> {
-                card.updateTable(0, "Computer")
-                nextMove("Player")
+        if (player.inHand.size == 0 && computer.inHand.size == 0) {
+
+        }
+        else {
+            card.showCards()
+            when (turn) {
+                "Player" -> {
+                    println("Cards in hand: ${card.digitsToPlayerCards().joinToString().replace(", ", " ")}")
+                    val action = getCardFromUser()
+                    if (action == -1) return println("Bye!")
+                    card.updateTable(action, "Player")
+                    nextMove("Computer")
+                }
+
+                "Computer" -> {
+                    card.updateTable(0, "Computer")
+                    nextMove("Player")
+                }
             }
         }
     }
@@ -88,7 +93,7 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
         }
     }
 
-    fun checkWinCards(turn: String) {
+    private fun checkWinCards(turn: String) {
         var score = 0
         val currentCard = cardsInTable[cardsInTable.lastIndex]
         val previousCard = cardsInTable[cardsInTable.lastIndex - 1]
@@ -119,46 +124,7 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
         }
     }
 
-    fun checkLast() {
-        var score = 0
-        if (player.inHand.size == 0 && computer.inHand.size == 0) {
-            for (i in cardsInTable) {
-                if (i.replaceFirst(".$".toRegex(), "") in cardsForPoint) score++
-            }
-            when (winLast) {
-                "Player" -> {
-                    player.score += score
-                    giveWinCards("Player")
-                }
-                "Computer" -> {
-                    computer.score += score
-                    giveWinCards("Computer")
-                }
-                else -> {
-                    if (whoFirst.firstPlayer == "Player") {
-                        player.score += score
-                        giveWinCards("Player")
-                    }
-                    else {
-                        computer.score += score
-                        giveWinCards("Computer")
-                    }
-                }
-            }
-            checkRemainCards()
-        }
-    }
-
-    fun checkRemainCards() {
-        if (player.win.size > computer.win.size) player.score += 3
-        else if (player.win.size < computer.win.size) computer.score += 3
-        else {
-            if (whoFirst.firstPlayer == "Player") player.score += 3
-            else computer.score += 3
-        }
-    }
-
-    fun giveWinCards(turn: String) {
+    private fun giveWinCards(turn: String) {
         when (turn) {
             "Player" -> {
                 player.win.addAll(cardsInTable)
@@ -171,20 +137,14 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
         }
     }
 
-    fun showScore() {
+    private fun showScore() {
         println("Score: Player ${player.score} - Computer ${computer.score}")
         println("Cards: Player ${player.win.size} - Computer ${computer.win.size}")
     }
 
-    fun showCards(): Int {
-        if (player.win.size + computer.win.size == 23) {
-            println("${cardsInTable.size} cards on the table, and the top card is ${cardsInTable[cardsInTable.lastIndex]}")
-            showScore()
-            return 1
-        }
-        else if (cardsInTable.size == 0) println("No cards on the table")
+    fun showCards() {
+        if (cardsInTable.size == 0) println("No cards on the table")
         else println("${cardsInTable.size} cards on the table, and the top card is ${cardsInTable[cardsInTable.lastIndex]}")
-        return 0
     }
 
     fun digitsToPlayerCards(): MutableList<String> {
