@@ -5,8 +5,8 @@ fun main() {
 }
 
 class GameCore {
-    private val player = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
-    private val computer = CardsOnHand(mutableListOf<String>(), mutableListOf<String>(), 0)
+    private val player = CardsOnHand(mutableListOf(), mutableListOf(), 0)
+    private val computer = CardsOnHand(mutableListOf(), mutableListOf(), 0)
     private var whoFirst = WhoFirst()
     private val card = Card(player, computer, whoFirst)
 
@@ -31,7 +31,9 @@ class GameCore {
     private fun nextMove(turn: String) {
         card.giveCards("Player", "Computer")
         if (player.inHand.size == 0 && computer.inHand.size == 0) {
-
+            card.showCards()
+            if(card.cardsInTable.size != 0) card.giveRemainingCards()
+            else card.giveLastScore()
         }
         else {
             card.showCards()
@@ -39,7 +41,7 @@ class GameCore {
                 "Player" -> {
                     println("Cards in hand: ${card.digitsToPlayerCards().joinToString().replace(", ", " ")}")
                     val action = getCardFromUser()
-                    if (action == -1) return println("Bye!")
+                    if (action == -1) return println("Game Over")
                     card.updateTable(action, "Player")
                     nextMove("Computer")
                 }
@@ -64,11 +66,10 @@ class GameCore {
     }
 }
 
-class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: WhoFirst) {
-    var cards = mutableListOf<String>()
+class Card(private val player: CardsOnHand, private val computer: CardsOnHand, private val whoFirst: WhoFirst) {
+    private var cards = mutableListOf<String>()
     var cardsInTable = mutableListOf<String>()
-    val cardsForPoint = mutableListOf("A", "J", "Q", "K", "10")
-    var winLast = ""
+    private val cardsForPoint = mutableListOf("A", "J", "Q", "K", "10")
 
     fun init() {
         reset()
@@ -97,12 +98,10 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
         var score = 0
         val currentCard = cardsInTable[cardsInTable.lastIndex]
         val previousCard = cardsInTable[cardsInTable.lastIndex - 1]
-
         val numberCurrent = if (currentCard.length == 3) currentCard[0].toString() + currentCard[1]
         else currentCard[0].toString()
         val numberPrevious = if (previousCard.length == 3) previousCard[0].toString() + previousCard[1]
         else previousCard[0].toString()
-
         if (numberCurrent == numberPrevious || currentCard[currentCard.lastIndex] == previousCard[previousCard.lastIndex]) {
             for (i in cardsInTable) {
                 if (i.replaceFirst(".$".toRegex(), "") in cardsForPoint) score++
@@ -110,12 +109,12 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
             when (turn) {
                 "Player" -> {
                     player.score += score
-                    winLast = "Player"
+                    whoFirst.lastWinner = "Player"
                     println("Player wins cards")
                 }
                 "Computer" -> {
                     computer.score += score
-                    winLast = "Computer"
+                    whoFirst.lastWinner = "Computer"
                     println("Computer wins cards")
                 }
             }
@@ -170,6 +169,42 @@ class Card(val player: CardsOnHand, val computer: CardsOnHand, val whoFirst: Who
             repeat (6) { computer.inHand.add(cards[it]) }
             repeat (6) { cards.removeAt(0) }
         }
+    }
+
+    fun giveRemainingCards() {
+        var score = 0
+        for (i in cardsInTable) {
+            if (i.replaceFirst(".$".toRegex(), "") in cardsForPoint) score++
+        }
+        when (whoFirst.lastWinner) {
+            "Player" -> {
+                player.score += score
+                giveWinCards("Player")
+            }
+            "Computer" -> {
+                computer.score += score
+                giveWinCards("Computer")
+            }
+            else -> {
+                if (whoFirst.firstPlayer == "Player") player.score += score
+                else computer.score += score
+                giveWinCards(whoFirst.firstPlayer)
+            }
+        }
+        giveLastScore()
+    }
+
+    fun giveLastScore() {
+        if (player.win.size > computer.win.size) player.score += 3
+        else if (player.win.size < computer.win.size) computer.score += 3
+        else {
+            when (whoFirst.firstPlayer) {
+                "Player" -> player.score += 3
+                "Computer" -> computer.score += 3
+            }
+        }
+        showScore()
+        println("Game Over")
     }
 
     private fun reset() {
