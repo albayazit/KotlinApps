@@ -47,7 +47,8 @@ class GameCore {
                 }
 
                 "Computer" -> {
-                    card.updateTable(0, "Computer")
+                    println(computer.inHand.joinToString().replace(",", ""))
+                    card.updateTable(getCardFromComputer(), "Computer")
                     nextMove("Player")
                 }
             }
@@ -63,6 +64,15 @@ class GameCore {
             } catch (_: Exception) {}
         } while (action != "exit")
         return -1
+    }
+
+    private fun getCardFromComputer(): Int {
+        if (computer.inHand.size == 1) return 0
+        getCondidateCard()
+    }
+
+    fun getCondidateCard() {
+
     }
 }
 
