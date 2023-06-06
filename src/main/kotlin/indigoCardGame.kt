@@ -67,6 +67,10 @@ class GameCore {
     }
 
     private fun getCardFromComputer(): Int {
+        val currentCard = card.cardsInTable.last()
+        val numberCardInTable = if (currentCard.length == 3) currentCard[0].toString() + currentCard[1]
+        else currentCard[0].toString()
+        val suitCardInTable = currentCard[currentCard.lastIndex]
         if (computer.inHand.size == 1) return 0
         getCondidateCard()
     }
