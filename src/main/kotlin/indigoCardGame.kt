@@ -75,21 +75,43 @@ class GameCore {
         val suitCardInTable = currentCard[currentCard.lastIndex]
         if (computer.inHand.size == 1) return 0
         if (checkIfOneCondidate(numberCardInTable, suitCardInTable) != -1) return checkIfOneCondidate(numberCardInTable, suitCardInTable)
-        if (noCardsInTable(numberCardInTable, suitCardInTable)
+        if (noCardsInTable(numberCardInTable, suitCardInTable) != -1) return noCardsInTable(numberCardInTable, suitCardInTable)
+        if (cardsOnTableWithoutCandidate(numberCardInTable, suitCardInTable) != -1) return cardsOnTableWithoutCandidate(numberCardInTable, suitCardInTable)
         return 0
     }
 
+    fun cardsOnTableWithoutCandidate(number: String, suit: Char): Int {
+        valueOfSameSuits()
+        return -1
+    }
+
+
     fun noCardsInTable(number: String, suit: Char): Int {
         if (card.cardsInTable.size == 0) {
-            var countOfSuits = 0
-            var cardToReturn = 0
-            var index = 0
-
             val candidateCardsWithSuits = checkSameSuits(suit)
             if (candidateCardsWithSuits.size > 0) return candidateCardsWithSuits[Random.nextInt(0, candidateCardsWithSuits.lastIndex)]
             val candidateCardsWithNumbers = checkSameNumbers(number)
             if (candidateCardsWithNumbers.size > 0) return candidateCardsWithNumbers[Random.nextInt(0, candidateCardsWithNumbers.lastIndex)]
+            else return Random.nextInt(0, computer.inHand.lastIndex)
         }
+        return -1
+    }
+
+    fun checkSameNumbers(number: String): MutableList<Int> {
+        var index = 0
+        var count = 0
+        var candidateCards = mutableListOf<Int>()
+
+        for (i in computer.inHand) {
+            val numberCardInHand = if (i.length == 3) i[0].toString() + i[1]
+            else i[0].toString()
+            if (numberCardInHand == number) {
+                candidateCards.add(index)
+                count++
+            }
+            index++
+        }
+        return candidateCards
     }
 
     fun checkSameSuits(suit: Char): MutableList<Int> {
