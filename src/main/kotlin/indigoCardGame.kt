@@ -75,59 +75,56 @@ class GameCore {
         val suitCardInTable = currentCard[currentCard.lastIndex]
         if (computer.inHand.size == 1) return 0
         if (checkIfOneCondidate(numberCardInTable, suitCardInTable) != -1) return checkIfOneCondidate(numberCardInTable, suitCardInTable)
-        if (noCardsInTable(numberCardInTable, suitCardInTable) != -1) return noCardsInTable(numberCardInTable, suitCardInTable)
-        if (cardsOnTableWithoutCandidate(numberCardInTable, suitCardInTable) != -1) return cardsOnTableWithoutCandidate(numberCardInTable, suitCardInTable)
+        if (noCardsInTable() != -1) return noCardsInTable()
+        if (cardsOnTableWithoutCandidate() != -1) return cardsOnTableWithoutCandidate()
         return 0
     }
 
-    fun cardsOnTableWithoutCandidate(number: String, suit: Char): Int {
-        valueOfSameSuits()
+    fun cardsOnTableWithoutCandidate(): Int {
+        val sameSuits = valueOfSameSuits()
         return -1
     }
 
+    fun valueOfSameSuits() {
 
-    fun noCardsInTable(number: String, suit: Char): Int {
+    }
+
+    fun noCardsInTable(): Int {
         if (card.cardsInTable.size == 0) {
-            val candidateCardsWithSuits = checkSameSuits(suit)
-            if (candidateCardsWithSuits.size > 0) return candidateCardsWithSuits[Random.nextInt(0, candidateCardsWithSuits.lastIndex)]
-            val candidateCardsWithNumbers = checkSameNumbers(number)
-            if (candidateCardsWithNumbers.size > 0) return candidateCardsWithNumbers[Random.nextInt(0, candidateCardsWithNumbers.lastIndex)]
-            else return Random.nextInt(0, computer.inHand.lastIndex)
+            val candidateCardsWithSuits = checkSameSuits()
+            val candidateCardsWithNumbers = checkSameNumbers()
+            return if (candidateCardsWithSuits != -1) candidateCardsWithSuits
+            else if (candidateCardsWithNumbers != -1) candidateCardsWithNumbers
+            else Random.nextInt(0, computer.inHand.lastIndex)
         }
         return -1
     }
-
-    fun checkSameNumbers(number: String): MutableList<Int> {
+    fun checkSameNumbers(): Int {
         var index = 0
-        var count = 0
         var candidateCards = mutableListOf<Int>()
-
+        var cards = mutableListOf<String>()
         for (i in computer.inHand) {
             val numberCardInHand = if (i.length == 3) i[0].toString() + i[1]
             else i[0].toString()
-            if (numberCardInHand == number) {
-                candidateCards.add(index)
-                count++
-            }
+            if (numberCardInHand in cards) candidateCards.add(index)
+            else cards.add(numberCardInHand)
             index++
         }
-        return candidateCards
+        return if (candidateCards.size != 0) Random.nextInt(candidateCards.lastIndex)
+        else -1
     }
-
-    fun checkSameSuits(suit: Char): MutableList<Int> {
+    fun checkSameSuits(): Int {
         var index = 0
-        var count = 0
         var candidateCards = mutableListOf<Int>()
-
+        var cards = mutableListOf<Char>()
         for (i in computer.inHand) {
             val suitCardInHand = i[i.lastIndex]
-            if (suitCardInHand == suit) {
-                candidateCards.add(index)
-                count++
-            }
+            if (suitCardInHand in cards) candidateCards.add(index)
+            else cards.add(suitCardInHand)
             index++
         }
-        return candidateCards
+        return if (candidateCards.size != 0) Random.nextInt(candidateCards.lastIndex)
+        else -1
     }
 
     fun checkIfOneCondidate(number: String, suit: Char): Int {
